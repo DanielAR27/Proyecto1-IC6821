@@ -2,15 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
-export default function MovieDetailView({ userId }) {
+export default function MovieDetailView() {
   const [movie, setMovie] = useState(null);
   const [darkMode, setDarkMode] = useState(JSON.parse(localStorage.getItem("darkMode")) || false);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "es");
-  
+  const [isFavorite, setIsFavorite] = useState(false);
+
   // Obtener ID de la película desde la URL
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const movieId = queryParams.get("id");
+
+  const userId = localStorage.getItem("userId");
+
+  console.log("User ID:", userId);
+  console.log("Movie ID:", movieId);
 
   // Función para alternar modo oscuro
   const handleToggleDarkMode = () => {
@@ -26,6 +32,7 @@ export default function MovieDetailView({ userId }) {
     localStorage.setItem("language", newLanguage);
   };
 
+  // Obtener detalles de la película
   useEffect(() => {
     const fetchMovieDetails = async () => {
       if (!movieId) return;
@@ -51,6 +58,50 @@ export default function MovieDetailView({ userId }) {
     fetchMovieDetails();
   }, [movieId, language]);
 
+  // Verificar si la película está en favoritos
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!userId || !movieId) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/is-favorite?userId=${userId}&movieId=${movieId}`);
+        const json = await res.json();
+        setIsFavorite(json.isFavorite);
+      } catch (error) {
+        console.error("Error al verificar favoritos:", error);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [userId, movieId]);
+
+  // Agregar o quitar de favoritos
+  const handleFavoriteToggle = async () => {
+    if (!userId) {
+      alert(language === "es" ? "Debes iniciar sesión para agregar favoritos" : "You must log in to add favorites");
+      return;
+    }
+
+    const url = `http://localhost:5000/${isFavorite ? "remove-favorite" : "add-favorite"}`;
+    const method = isFavorite ? "DELETE" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, movieId })
+      });
+
+      if (res.ok) {
+        setIsFavorite(!isFavorite);
+      } else {
+        console.error("Error al actualizar favoritos");
+      }
+    } catch (error) {
+      console.error("Error en la solicitud de favoritos:", error);
+    }
+  };
+
   return (
     <div style={{ 
       textAlign: "center", 
@@ -62,7 +113,13 @@ export default function MovieDetailView({ userId }) {
       alignItems: "center", 
       paddingTop: "80px" 
     }}>
-      <Navbar toggleDarkMode = {handleToggleDarkMode} toggleLanguage = {handleToggleLanguage} language={language} darkMode={darkMode} activeSection="movie" />
+      <Navbar 
+        toggleDarkMode={handleToggleDarkMode} 
+        toggleLanguage={handleToggleLanguage} 
+        language={language} 
+        darkMode={darkMode} 
+        activeSection="movie" 
+      />
 
       {movie ? (
         <div style={{ width: "80%", maxWidth: "800px", textAlign: "center", marginTop: "20px" }}>
@@ -76,6 +133,30 @@ export default function MovieDetailView({ userId }) {
           <p><strong>{language === "es" ? "Géneros" : "Genres"}:</strong> {movie.genres.map(g => g.name).join(", ")}</p>
           <p><strong>{language === "es" ? "Fecha de lanzamiento" : "Release Date"}:</strong> {movie.release_date}</p>
           <p><strong>{language === "es" ? "Calificación" : "Rating"}:</strong> {movie.vote_average}</p>
+
+          {/* Botón de favoritos fijo en la esquina inferior derecha */}
+          <div 
+            style={{ 
+              position: "fixed", 
+              bottom: "20px", 
+              right: "20px", 
+              zIndex: 1000 
+            }}>
+            <button 
+              onClick={handleFavoriteToggle}
+              style={{ 
+                padding: "10px 20px", 
+                border: "none", 
+                borderRadius: "5px", 
+                cursor: "pointer", 
+                backgroundColor: isFavorite ? "#e74c3c" : "#2ecc71", 
+                color: "white",
+                fontSize: "16px"
+              }}>
+              {isFavorite ? "❌" : "➕"} {language === "es" ? (isFavorite ? "Eliminar de favoritos" : "Agregar a favoritos") : (isFavorite ? "Remove from Favorites" : "Add to Favorites")}
+            </button>
+          </div>
+
         </div>
       ) : (
         <p>{language === "es" ? "Cargando información de la película..." : "Loading movie details..."}</p>

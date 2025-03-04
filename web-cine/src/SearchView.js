@@ -7,11 +7,12 @@ function SearchView({ userId }) {
   const [movies, setMovies] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [darkMode, setDarkMode] = useState(JSON.parse(localStorage.getItem("darkMode")) || false);
-  const [language, setLanguage] = useState(localStorage.getItem("language") || "es");
-
-  // Obtener userId de localStorage si no se pasa como prop
-  const storedUserId = userId || localStorage.getItem("userId");
+  const [darkMode, setDarkMode] = useState(() => {
+    return JSON.parse(localStorage.getItem("darkMode")) || false;
+  });
+  const [language, setLanguage] =  useState(() => {
+    return localStorage.getItem("language") || "es";
+  });
 
   // Guardar userId en localStorage solo si viene de props y no está guardado aún
   useEffect(() => {
@@ -88,7 +89,7 @@ function SearchView({ userId }) {
         activeSection="search" 
       />
       
-      <h1>{language === "es" ? "Buscar Películas" : "Search Movies"}</h1>
+      {language && <h1>{language === "es" ? "Buscar Películas" : "Search Movies"}</h1>}
       
       <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
         <input 

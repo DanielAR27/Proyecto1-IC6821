@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import GoogleButton from "./components/GoogleButton";
 import SearchView from "./SearchView";
 import MovieDetailView from "./MovieDetailView";
+import FavoriteMovies from "./FavoriteMovies";
 
 const CLIENT_ID = "953538209212-2altfrvcjc8fm8o0lpotraqadg742g60.apps.googleusercontent.com";
 
@@ -117,6 +118,7 @@ function App() {
           <Route path="/" element={<LoginPage darkMode={darkMode} language={language} toggleDarkMode={handleToggleDarkMode} toggleLanguage={handleToggleLanguage} setUserId={setUserId} />} />
           <Route path="/search-view" element={<SearchView userId={userId}/>} />
           <Route path="/movie" element={<MovieDetailView />} />
+          <Route path="/favorites" element={<FavoriteMovies />} />
         </Routes>
       </Router>
     </GoogleOAuthProvider>

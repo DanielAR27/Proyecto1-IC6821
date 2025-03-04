@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar({ toggleDarkMode, toggleLanguage, language, darkMode, activeSection }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Cerrar el menú al hacer clic fuera de él
   useEffect(() => {
@@ -35,17 +37,19 @@ export default function Navbar({ toggleDarkMode, toggleLanguage, language, darkM
       
       {/* Navegación */}
       <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-        <button style={{ 
-          background: activeSection === "search" ? "#81a5b8" : "none", 
-          border: "none", 
-          color: activeSection === "search" ? "white" : "black", 
-          fontSize: "16px", 
-          cursor: "pointer", 
-          padding: "8px 12px", 
-          borderRadius: "5px", 
-          transition: "background 0.3s ease, color 0.3s ease", 
-          fontWeight: "bold",
-          outline: "none"
+        <button 
+          onClick={() => navigate("/search-view")} 
+          style={{ 
+            background: activeSection === "search" ? "#81a5b8" : "none", 
+            border: "none", 
+            color: activeSection === "search" ? "white" : "black", 
+            fontSize: "16px", 
+            cursor: "pointer", 
+            padding: "8px 12px", 
+            borderRadius: "5px", 
+            transition: "background 0.3s ease, color 0.3s ease", 
+            fontWeight: "bold",
+            outline: "none"
         }}
         onMouseEnter={(e) => e.target.style.backgroundColor = activeSection === "search" ? "#81a5b8" : (darkMode ? "#777" : "#ddd")}
         onMouseLeave={(e) => e.target.style.backgroundColor = activeSection === "search" ? "#81a5b8" : "transparent"}
@@ -53,17 +57,19 @@ export default function Navbar({ toggleDarkMode, toggleLanguage, language, darkM
           {language === "es" ? "Buscar películas" : "Search Movies"}
         </button>
 
-        <button style={{ 
-          background: activeSection === "my-movies" ? "81a5b8" : "none", 
-          border: "none", 
-          color: activeSection === "my-movies" ? "white" : "black", 
-          fontSize: "16px", 
-          cursor: "pointer", 
-          padding: "8px 12px", 
-          borderRadius: "5px", 
-          transition: "background 0.3s ease, color 0.3s ease", 
-          fontWeight: "bold",
-          outline: "none"
+        <button
+          onClick={() => navigate("/favorites")} 
+          style={{ 
+            background: activeSection === "my-movies" ? "#81a5b8" : "none", 
+            border: "none", 
+            color: activeSection === "my-movies" ? "white" : "black", 
+            fontSize: "16px", 
+            cursor: "pointer", 
+            padding: "8px 12px", 
+            borderRadius: "5px", 
+            transition: "background 0.3s ease, color 0.3s ease", 
+            fontWeight: "bold",
+            outline: "none"
         }}
         onMouseEnter={(e) => e.target.style.backgroundColor = activeSection === "my-movies" ? "#81a5b8" : (darkMode ? "#777" : "#ddd")}
         onMouseLeave={(e) => e.target.style.backgroundColor = activeSection === "my-movies" ? "#81a5b8" : "transparent"}

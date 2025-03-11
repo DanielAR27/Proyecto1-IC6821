@@ -18,6 +18,12 @@ export default function Navbar({ toggleDarkMode, toggleLanguage, language, darkM
     };
   }, [menuOpen]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("userId"); // Eliminar el ID del usuario del almacenamiento local
+    setMenuOpen(false); // Cerrar el menú desplegable
+    navigate("/"); // Redirigir al usuario a la página de inicio de sesión
+  };
+  
   return (
     <nav style={{ 
       display: "flex", 
@@ -137,6 +143,19 @@ export default function Navbar({ toggleDarkMode, toggleLanguage, language, darkM
                     ? (language === "es" ? "☀️ Modo Claro" : "☀️ Light Mode") 
                     : (language === "es" ? "🌙 Modo Oscuro" : "🌙 Dark Mode")
                   }
+              </button>
+              <button onClick={handleLogout} 
+                style={{ 
+                  display: "block", 
+                  width: "100%", 
+                  padding: "10px 15px", 
+                  border: "none", 
+                  background: "none", 
+                  cursor: "pointer", 
+                  textAlign: "left", 
+                  color: darkMode ? "white" : "black"
+                }}>
+                {language === "es" ? "Cerrar sesión" : "Logout"}
               </button>
             </div>
           )}

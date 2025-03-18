@@ -15,7 +15,7 @@ function LoginPage({ darkMode, language, toggleDarkMode, toggleLanguage, setUser
 
   const handleUserAuth = async (userId, name) => {
     try {
-      const res = await fetch("http://localhost:5000/auth", {
+      const res = await fetch("https://proyecto1-ic6821.onrender.com/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ googleId: userId, name, favoriteMovies: [] })

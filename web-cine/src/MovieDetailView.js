@@ -64,7 +64,7 @@ export default function MovieDetailView() {
       if (!userId || !movieId) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/is-favorite?userId=${userId}&movieId=${movieId}`);
+        const res = await fetch(`https://proyecto1-ic6821.onrender.com/is-favorite?userId=${userId}&movieId=${movieId}`);
         const json = await res.json();
         setIsFavorite(json.isFavorite);
       } catch (error) {

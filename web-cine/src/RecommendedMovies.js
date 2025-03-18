@@ -15,7 +15,7 @@ export default function RecommendedMovies() {
         let moviesToShow = [];
 
         if (userId) {
-          const userFavoritesRes = await fetch(`http://localhost:5000/favorites/${userId}`);
+          const userFavoritesRes = await fetch(`https://proyecto1-ic6821.onrender.com/favorites/${userId}`);
           const userFavoritesJson = await userFavoritesRes.json();
           const favoriteMovieIds = userFavoritesJson.favoriteMovies || [];
 

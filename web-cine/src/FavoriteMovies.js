@@ -20,7 +20,7 @@ export default function FavoriteMovies() {
 
     const fetchFavorites = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/favorites/${userId}`);
+        const res = await fetch(`https://proyecto1-ic6821.onrender.com/favorites/${userId}`);
         const json = await res.json();
         const movieIds = json.favoriteMovies || [];
 

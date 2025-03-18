@@ -82,7 +82,7 @@ export default function MovieDetailView() {
       return;
     }
 
-    const url = `http://localhost:5000/${isFavorite ? "remove-favorite" : "add-favorite"}`;
+    const url = `https://proyecto1-ic6821.onrender.com/${isFavorite ? "remove-favorite" : "add-favorite"}`;
     const method = isFavorite ? "DELETE" : "POST";
 
     try {

@@ -82,7 +82,26 @@ export default function Navbar({ toggleDarkMode, toggleLanguage, language, darkM
         >
           {language === "es" ? "Ver mis películas" : "My Movies"}
         </button>
-        
+        <button onClick={() => navigate("/recommended")} 
+        style={{ 
+          background: activeSection === "recommended" ? "#81a5b8" : "none", 
+          border: "none", 
+          color: activeSection === "recommended" ? "white" : "black", 
+          fontSize: "16px", 
+          cursor: "pointer", 
+          padding: "8px 12px", 
+          borderRadius: "5px", 
+          transition: "background 0.3s ease, color 0.3s ease", 
+          fontWeight: "bold",
+          outline: "none"
+        }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = activeSection === "recommended" ? "#81a5b8" : (darkMode ? "#777" : "#ddd")}
+        onMouseLeave={(e) => e.target.style.backgroundColor = activeSection === "recommended" ? "#81a5b8" : "transparent"}
+      >
+        {language === "es" ? "Películas Recomendadas" : "Recommended Movies"}
+      </button>
+
+
         {/* Botón del menú ⋮ */}
         <div className="menu-container" style={{ position: "relative", display: "flex", alignItems: "center" }}>
           <button 

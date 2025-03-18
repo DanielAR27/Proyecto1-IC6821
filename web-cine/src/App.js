@@ -5,6 +5,7 @@ import GoogleButton from "./components/GoogleButton";
 import SearchView from "./SearchView";
 import MovieDetailView from "./MovieDetailView";
 import FavoriteMovies from "./FavoriteMovies";
+import RecommendedMovies from "./RecommendedMovies";
 
 const CLIENT_ID = "953538209212-2altfrvcjc8fm8o0lpotraqadg742g60.apps.googleusercontent.com";
 
@@ -119,6 +120,7 @@ function App() {
           <Route path="/search-view" element={<SearchView userId={userId}/>} />
           <Route path="/movie" element={<MovieDetailView />} />
           <Route path="/favorites" element={<FavoriteMovies />} />
+          <Route path="/recommended" element={<RecommendedMovies />} />
         </Routes>
       </Router>
     </GoogleOAuthProvider>

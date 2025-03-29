@@ -71,6 +71,8 @@ app.get("/is-favorite", async (req, res) => {
 app.post("/add-favorite", async (req, res) => {
   const { userId, movieId } = req.body;
 
+  console.log("🔍 Datos recibidos en /add-favorite:", req.body); // <- Agregar esta línea para debug
+
   if (!userId || !movieId) {
     return res.status(400).json({ error: "Faltan parámetros: userId y movieId son requeridos" });
   }
@@ -82,7 +84,6 @@ app.post("/add-favorite", async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Verificar si la película ya está en favoritos
     if (!user.favoriteMovies.includes(movieId)) {
       user.favoriteMovies.push(movieId);
       await user.save();
@@ -90,7 +91,7 @@ app.post("/add-favorite", async (req, res) => {
 
     res.json({ message: "Película agregada a favoritos", favoriteMovies: user.favoriteMovies });
   } catch (error) {
-    console.error("Error al agregar favorito:", error);
+    console.error("🚨 Error al agregar favorito:", error);
     res.status(500).json({ error: "Error en el servidor" });
   }
 });

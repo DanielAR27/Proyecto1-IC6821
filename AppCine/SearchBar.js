@@ -32,7 +32,7 @@ export default function SearchBar({
         onChangeText={setSearchQuery}
       />
 
-      {/* 🎭 Género */}
+      {/* Género */}
       <View style={[styles.pickerContainer, { borderColor: isDarkMode ? '#fff' : '#999' }]}>
         <Picker
           selectedValue={genre}
@@ -49,7 +49,7 @@ export default function SearchBar({
         </Picker>
       </View>
 
-      {/* 📅 Año */}
+      {/* Año */}
       <TextInput
         style={styles.input}
         placeholder={language === 'es' ? "Año" : "Year"}
@@ -59,7 +59,7 @@ export default function SearchBar({
         onChangeText={setYear}
       />
 
-      {/* ⭐ Rating mínimo */}
+      {/* Rating mínimo */}
       <TextInput
         style={styles.input}
         placeholder="IMDB Min"

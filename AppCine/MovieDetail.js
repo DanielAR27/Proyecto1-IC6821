@@ -4,24 +4,32 @@ import { ScrollView, Text, Image, StyleSheet, TouchableOpacity } from 'react-nat
 export default function MovieDetail({ movie, isDarkMode, onBack, language }) {
   return (
     <ScrollView style={[styles.detailContainer, { backgroundColor: isDarkMode ? '#000' : '#fff' }]}>
-      {movie.Poster && movie.Poster !== 'N/A' && (
-        <Image source={{ uri: movie.Poster }} style={styles.detailPoster} />
+      {movie.poster_path && (
+        <Image
+          source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
+          style={styles.detailPoster}
+        />
       )}
-      <Text style={[styles.detailTitle, { color: isDarkMode ? '#fff' : '#000' }]}>{movie.Title}</Text>
-      <Text style={[styles.detailText, { color: isDarkMode ? '#fff' : '#000' }]}>{movie.Plot}</Text>
-      <Text style={[styles.detailText, { color: isDarkMode ? '#fff' : '#000' }]}>
-        {language === 'es' ? 'Año:' : 'Year:'} {movie.Year}
+      <Text style={[styles.detailTitle, { color: isDarkMode ? '#fff' : '#000' }]}>
+        {movie.title}
       </Text>
       <Text style={[styles.detailText, { color: isDarkMode ? '#fff' : '#000' }]}>
-        {language === 'es' ? 'Género:' : 'Genre:'} {movie.Genre}
+        {movie.overview}
       </Text>
-      {/* Puedes agregar más detalles según lo que devuelva la API */}
+      <Text style={[styles.detailText, { color: isDarkMode ? '#fff' : '#000' }]}>
+        {language === 'es' ? 'Fecha de estreno:' : 'Release Date:'} {movie.release_date}
+      </Text>
+      <Text style={[styles.detailText, { color: isDarkMode ? '#fff' : '#000' }]}>
+        {language === 'es' ? 'Puntuación:' : 'Rating:'} {movie.vote_average}
+      </Text>
+
       <TouchableOpacity style={styles.backButton} onPress={onBack}>
         <Text style={styles.backButtonText}>{language === 'es' ? 'Volver' : 'Back'}</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   detailContainer: {

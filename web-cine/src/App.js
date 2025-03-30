@@ -21,9 +21,9 @@ function LoginPage({ darkMode, language, toggleDarkMode, toggleLanguage, setUser
         body: JSON.stringify({ googleId: userId, name, favoriteMovies: [] })
       });
       const data = await res.json();
-      console.log("🔹 Usuario autenticado o creado:", data);
+      console.log("Usuario autenticado o creado:", data);
     } catch (error) {
-      console.error("❌ Error al autenticar usuario:", error);
+      console.error("Error al autenticar usuario:", error);
     }
   };
 

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { TMDB_API_KEY } from './config'; // Ajusta el path si lo pusiste en otra carpeta
 import {
   View,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   StyleSheet,
-  Alert,
-  ActivityIndicator,
-  FlatList,
+  Alert
 } from 'react-native';
 import Navbar from './Navbar';
 import SearchBar from './SearchBar';
@@ -20,6 +19,10 @@ export default function App() {
   const [themePopupVisible, setThemePopupVisible] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [language, setLanguage] = useState('es');
+  const [genre, setGenre] = useState('');
+  const [year, setYear] = useState('');
+  const [rating, setRating] = useState('');
+  
 
   // Estados para búsqueda y paginación
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,37 +38,72 @@ export default function App() {
 
   // Función para obtener películas (lista)
   const fetchMovies = () => {
-    if (!searchQuery.trim()) {
-      setMovies([]);
-      setTotalResults(0);
-      setMoviesLoading(false);
-      setSearchError(
-        language === 'es'
-          ? "Ingrese un término de búsqueda"
-          : "Enter a search term"
-      );
-      return;
-    }
     setMoviesLoading(true);
     setSearchError('');
-    fetch(
-      `https://www.omdbapi.com/?apikey=a073feea&s=${encodeURIComponent(
-        searchQuery
-      )}&page=${currentPage}`
-    )
+    
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', currentPage);
+    queryParams.append('language', language === 'es' ? 'es-ES' : 'en-US');
+    
+    let url = '';
+    const useSearch = searchQuery.trim() !== '';
+  
+    if (useSearch) {
+      // Buscar por título (y filtrar lo demás manualmente)
+      queryParams.append('query', searchQuery.trim());
+      url = `https://api.themoviedb.org/3/search/movie?${queryParams.toString()}`;
+    } else {
+      // Sin título: se pueden aplicar todos los filtros directo
+      if (genre) queryParams.append('with_genres', genre);
+      if (year) queryParams.append('primary_release_year', year);
+      if (rating) queryParams.append('vote_average.gte', rating);
+      url = `https://api.themoviedb.org/3/discover/movie?${queryParams.toString()}`;
+    }
+  
+    fetch(url, {
+      headers: {
+        Authorization: `Bearer ${TMDB_API_KEY}`,
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
-        if (data.Response === 'True') {
-          setMovies(data.Search);
-          setTotalResults(parseInt(data.totalResults, 10));
+        if (data.results && data.results.length > 0) {
+          let filteredResults = data.results;
+  
+          // Si se usó `search/movie`, hay que filtrar a mano
+          if (useSearch) {
+            if (genre) {
+              filteredResults = filteredResults.filter((movie) =>
+                movie.genre_ids.includes(parseInt(genre))
+              );
+            }
+            if (year) {
+              filteredResults = filteredResults.filter((movie) =>
+                movie.release_date && movie.release_date.startsWith(year)
+              );
+            }
+            if (rating) {
+              filteredResults = filteredResults.filter((movie) =>
+                movie.vote_average >= parseFloat(rating)
+              );
+            }
+          }
+  
+          if (filteredResults.length > 0) {
+            setMovies(filteredResults);
+            setTotalResults(filteredResults.length);
+          } else {
+            setSearchError(language === 'es'
+              ? 'No se encontraron resultados con esos filtros'
+              : 'No results found with those filters');
+            setMovies([]);
+            setTotalResults(0);
+          }
         } else {
-          setSearchError(
-            data.Error === "Too many results."
-              ? language === 'es'
-                ? "Hay muchas coincidencias, sea específico en su búsqueda"
-                : "Too many results, be specific in your search"
-              : data.Error
-          );
+          setSearchError(language === 'es'
+            ? 'No se encontraron resultados'
+            : 'No results found');
           setMovies([]);
           setTotalResults(0);
         }
@@ -73,52 +111,68 @@ export default function App() {
       })
       .catch((err) => {
         console.error(err);
-        setSearchError(
-          language === 'es'
-            ? "Error al conectar con la API"
-            : "Error connecting to the API"
-        );
+        setSearchError(language === 'es'
+          ? 'Error al conectar con la API'
+          : 'Error connecting to the API');
         setMoviesLoading(false);
       });
   };
-
+    
   // Función para obtener detalles de una película
-  const fetchMovieDetails = (imdbID) => {
+  const fetchMovieDetails = (movieId) => {
     setMovieDetailLoading(true);
-    fetch(`https://www.omdbapi.com/?apikey=a073feea&i=${imdbID}&plot=full`)
+    fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=${language === 'es' ? 'es-ES' : 'en-US'}`, {
+      headers: {
+        Authorization: `Bearer ${TMDB_API_KEY}`,
+        'Content-Type': 'application/json;charset=utf-8'
+      }
+    })
       .then((res) => res.json())
       .then((data) => {
-        if (data.Response === 'True') {
-          setSelectedMovie(data);
-        } else {
-          Alert.alert("Error", data.Error);
-        }
+        setSelectedMovie(data);
         setMovieDetailLoading(false);
       })
       .catch((err) => {
         console.error(err);
-        Alert.alert("Error", "Error al conectar con la API");
+        Alert.alert("Error", language === 'es' ? "Error al conectar con la API" : "Error connecting to the API");
         setMovieDetailLoading(false);
       });
   };
+  
 
   // Se llama a la búsqueda al cambiar la página
   useEffect(() => {
     fetchMovies();
   }, [currentPage]);
 
+  // Se llama a la búsqueda a cambiar el idioma
+  useEffect(() => {
+    fetchMovies();
+  }, [language]);
+  
+  // Se llama a la búsqueda a cambiar el idioma si está mostrando la info de
+  // una película en específico
+  useEffect(() => {
+    if (selectedMovie) {
+      fetchMovieDetails(selectedMovie.id); 
+    }
+  }, [language]);
+  
   const handleSearch = () => {
-    if (!searchQuery.trim()) {
+    // Solo mostrar error si no se ingresó NINGÚN filtro
+    if (!searchQuery.trim() && !genre && !year && !rating) {
       setSearchError(
         language === 'es'
-          ? "Ingrese un término de búsqueda"
-          : "Enter a search term"
+          ? "Ingrese al menos un filtro de búsqueda"
+          : "Enter at least one search filter"
       );
       return;
     }
+  
     setCurrentPage(1);
     fetchMovies();
   };
+  
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -216,6 +270,12 @@ if (selectedMovie) {
           handleSearch={handleSearch}
           isDarkMode={isDarkMode}
           language={language}
+          genre={genre}
+          setGenre={setGenre}
+          year={year}
+          setYear={setYear}
+          rating={rating}
+          setRating={setRating}
         />
         {searchError ? (
           <Text style={[styles.errorText, { color: isDarkMode ? '#fff' : '#000' }]}>
@@ -265,16 +325,6 @@ if (selectedMovie) {
               <Text style={styles.profileTitle}>Cinema App</Text>
             </View>
             <View style={styles.separator} />
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuItemText}>
-                {language === 'es' ? 'OPCIÓN #1' : 'OPTION #1'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuItemText}>
-                {language === 'es' ? 'OPCIÓN #2' : 'OPTION #2'}
-              </Text>
-            </TouchableOpacity>
           </View>
           <TouchableWithoutFeedback onPress={() => setSideMenuVisible(false)}>
             <View style={styles.overlayBackground} />

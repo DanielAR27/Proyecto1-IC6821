@@ -23,6 +23,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "EXPO_PUBLIC_TMDB_API_KEY": "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4MDRmNjFlNzM3MDFhZTQ1ZjNjZjVjNTBjMzcxMTVkMSIsIm5iZiI6MTc0MDk3NDE1MS40ODUsInN1YiI6IjY3YzUyODQ3Y2NmYzc0OWFmMjkxZTZiZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.WhLQuC41NRlAu5DeSI0DmzaHe6fnrgw848QX7XJCYkk"
     }
   }
 }

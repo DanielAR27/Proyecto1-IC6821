@@ -13,6 +13,8 @@ import Navbar from './Navbar';
 import SearchBar from './SearchBar';
 import MovieList from './MovieList';
 import MovieDetail from './MovieDetail';
+import Constants from 'expo-constants';
+const API_KEY = Constants.expoConfig.extra.EXPO_PUBLIC_TMDB_API_KEY;
 
 export default function App() {
   // Estados de la interfaz
@@ -29,78 +31,107 @@ export default function App() {
   const [totalResults, setTotalResults] = useState(0);
   const [searchError, setSearchError] = useState('');
 
+  //Filtros
+  const [genre, setGenre] = useState('');
+  const [year, setYear] = useState('');
+  const [rating, setRating] = useState('');
+
+
   // Estado para la película seleccionada (detalles)
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [movieDetailLoading, setMovieDetailLoading] = useState(false);
+  
 
   // Función para obtener películas (lista)
-  const fetchMovies = () => {
-    if (!searchQuery.trim()) {
+
+  const fetchMovies = async () => {
+    if (!searchQuery.trim() && !genre && !year && !rating) {
       setMovies([]);
       setTotalResults(0);
-      setMoviesLoading(false);
-      setSearchError(
-        language === 'es'
-          ? "Ingrese un término de búsqueda"
-          : "Enter a search term"
-      );
+      setSearchError(language === 'es' ? "Ingrese un criterio o filtro de búsqueda" : "Enter a search term or filter");
       return;
     }
+
     setMoviesLoading(true);
     setSearchError('');
-    fetch(
-      `https://www.omdbapi.com/?apikey=a073feea&s=${encodeURIComponent(
-        searchQuery
-      )}&page=${currentPage}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.Response === 'True') {
-          setMovies(data.Search);
-          setTotalResults(parseInt(data.totalResults, 10));
-        } else {
-          setSearchError(
-            data.Error === "Too many results."
-              ? language === 'es'
-                ? "Hay muchas coincidencias, sea específico en su búsqueda"
-                : "Too many results, be specific in your search"
-              : data.Error
+
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`,
+      },
+    };
+
+    try {
+      let url = '';
+      let results = [];
+
+      if (searchQuery.trim()) {
+        url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(searchQuery)}&language=${language}&include_adult=false&page=${currentPage}`;
+        const res = await fetch(url, options);
+        const json = await res.json();
+        results = json.results || [];
+
+        // Filtro manual
+        results = results.filter((movie) => {
+          return (
+            (!genre || movie.genre_ids.includes(parseInt(genre))) &&
+            (!year || movie.release_date?.startsWith(year)) &&
+            (!rating || movie.vote_average >= parseFloat(rating))
           );
-          setMovies([]);
-          setTotalResults(0);
-        }
-        setMoviesLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setSearchError(
-          language === 'es'
-            ? "Error al conectar con la API"
-            : "Error connecting to the API"
-        );
-        setMoviesLoading(false);
-      });
+        });
+        setMovies(results);
+        setTotalResults(json.total_results || 0);
+      } else {
+        // Discover si no hay searchQuery
+        url = `https://api.themoviedb.org/3/discover/movie?language=${language}&include_adult=false&page=${currentPage}`;
+        if (genre) url += `&with_genres=${genre}`;
+        if (year) url += `&primary_release_year=${year}`;
+        if (rating) url += `&vote_average.gte=${rating}`;
+
+        const res = await fetch(url, options);
+        const json = await res.json();
+        setMovies(json.results || []);
+        setTotalResults(json.total_results || 0);
+      }
+    } catch (err) {
+      console.error('❌ Error al buscar películas:', err);
+      setSearchError(language === 'es' ? "Error al conectar con la API" : "Error connecting to the API");
+    } finally {
+      setMoviesLoading(false);
+    }
   };
 
+
   // Función para obtener detalles de una película
-  const fetchMovieDetails = (imdbID) => {
+  const fetchMovieDetails = async (movieId) => {
     setMovieDetailLoading(true);
-    fetch(`https://www.omdbapi.com/?apikey=a073feea&i=${imdbID}&plot=full`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.Response === 'True') {
-          setSelectedMovie(data);
-        } else {
-          Alert.alert("Error", data.Error);
-        }
-        setMovieDetailLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        Alert.alert("Error", "Error al conectar con la API");
-        setMovieDetailLoading(false);
-      });
+    const url = `https://api.themoviedb.org/3/movie/${movieId}?language=${language}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`,
+      },
+    };
+
+    try {
+      const res = await fetch(url, options);
+      const json = await res.json();
+      if (res.ok) {
+        setSelectedMovie(json);
+      } else {
+        Alert.alert("Error", json.status_message || "No se pudo obtener detalles");
+      }
+    } catch (error) {
+      console.error("❌ Error al obtener detalles de película:", error);
+      Alert.alert("Error", language === 'es' ? "Error al conectar con la API" : "Error connecting to the API");
+    } finally {
+      setMovieDetailLoading(false);
+    }
   };
+
 
   // Se llama a la búsqueda al cambiar la página
   useEffect(() => {
@@ -216,6 +247,12 @@ if (selectedMovie) {
           handleSearch={handleSearch}
           isDarkMode={isDarkMode}
           language={language}
+          genre={genre}
+          setGenre={setGenre}
+          year={year}
+          setYear={setYear}
+          rating={rating}
+          setRating={setRating}
         />
         {searchError ? (
           <Text style={[styles.errorText, { color: isDarkMode ? '#fff' : '#000' }]}>

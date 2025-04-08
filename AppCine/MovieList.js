@@ -5,28 +5,31 @@ export default function MovieList({ movies, moviesLoading, isDarkMode, onPressMo
   if (moviesLoading) {
     return <ActivityIndicator size="large" color="#888" />;
   }
-  
+
   return (
     <FlatList
       data={movies}
-      keyExtractor={(item) => item.imdbID}
+      keyExtractor={(item) => item.id?.toString()}
       renderItem={({ item }) => (
         <TouchableOpacity
-          onPress={() => onPressMovie(item.imdbID)}
+          onPress={() => onPressMovie(item.id)}
           style={[
             styles.movieItem,
             { backgroundColor: isDarkMode ? '#808080' : '#f9f9f9' },
           ]}
         >
-          {item.Poster && item.Poster !== 'N/A' && (
-            <Image source={{ uri: item.Poster }} style={styles.poster} />
+          {item.poster_path && (
+            <Image
+              source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+              style={styles.poster}
+            />
           )}
           <View style={styles.movieInfo}>
             <Text style={[styles.movieTitle, { color: isDarkMode ? '#fff' : '#000' }]}>
-              {item.Title}
+              {item.title}
             </Text>
             <Text style={[styles.movieYear, { color: isDarkMode ? '#fff' : '#666' }]}>
-              {item.Year}
+              {item.release_date?.substring(0, 4)}
             </Text>
           </View>
         </TouchableOpacity>

@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import MovieList from "./components/MovieList";
 
 function SearchView({ userId }) {
-  console.log("✅ SearchView.js está renderizando");
+  console.log(" SearchView.js está renderizando");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [movies, setMovies] = useState(null);
@@ -39,12 +39,12 @@ function SearchView({ userId }) {
   const handleSearch = async (newPage = 1) => {
     if (!searchQuery.trim() && !genre && !year && !rating) return;
 
-    console.log("✅ handleSearch() se ejecutó con los siguientes filtros:");
-    console.log("🔍 Título:", searchQuery);
-    console.log("🎭 Género:", genre);
-    console.log("📅 Año:", year);
-    console.log("⭐ Rating mínimo:", rating);
-    console.log("📄 Página:", newPage);
+    console.log(" handleSearch() se ejecutó con los siguientes filtros:");
+    console.log(" Título:", searchQuery);
+    console.log(" Género:", genre);
+    console.log(" Año:", year);
+    console.log(" Rating mínimo:", rating);
+    console.log(" Página:", newPage);
 
     let url = "";
     let options = {
@@ -62,7 +62,7 @@ function SearchView({ userId }) {
         if (searchQuery.trim()) {
             // Buscar por título primero
             url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(searchQuery)}&include_adult=false&language=en-US&page=${newPage}`;
-            console.log("🔍 URL generada para búsqueda por título:", url);
+            console.log(" URL generada para búsqueda por título:", url);
 
             let res = await fetch(url, options);
             let json = await res.json();
@@ -72,13 +72,13 @@ function SearchView({ userId }) {
 
         // Aplicar filtros manualmente sobre los resultados obtenidos
         if (movies.length > 0) {
-            console.log("📡 Películas encontradas antes de filtrar:", movies.length);
+            console.log(" Películas encontradas antes de filtrar:", movies.length);
             movies = movies.filter(movie => {
                 return (!genre || movie.genre_ids.includes(parseInt(genre))) &&
                        (!year || movie.release_date?.startsWith(year)) &&
                        (!rating || movie.vote_average >= rating);
             });
-            console.log("✅ Películas después de aplicar filtros:", movies.length);
+            console.log(" Películas después de aplicar filtros:", movies.length);
         } else {
             // Si no hay resultados por título, buscar solo usando discover/movie con filtros
             url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&language=en-US&page=${newPage}`;
@@ -86,7 +86,7 @@ function SearchView({ userId }) {
             if (year) url += `&primary_release_year=${year}`;
             if (rating) url += `&vote_average.gte=${rating}`;
 
-            console.log("🔍 URL generada para búsqueda por filtros:", url);
+            console.log(" URL generada para búsqueda por filtros:", url);
             let res = await fetch(url, options);
             let json = await res.json();
             movies = json.results || [];
@@ -97,7 +97,7 @@ function SearchView({ userId }) {
         setPage(newPage);
         setTotalPages(total_pages); 
     } catch (error) {
-        console.error("🚨 Error al buscar películas:", error);
+        console.error(" Error al buscar películas:", error);
     }
 };
 
@@ -129,7 +129,7 @@ function SearchView({ userId }) {
 
       <h1>{language === "es" ? "Buscar Películas" : "Search Movies"}</h1>
 
-      {/* 🔍 Input de búsqueda y filtros */}
+      {/* Input de búsqueda y filtros */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "20px", justifyContent: "center" }}>
         <input
           type="text"
@@ -140,7 +140,7 @@ function SearchView({ userId }) {
           style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc", width: "200px" }}
         />
 
-        {/* 🔽 Filtro de género */}
+        {/* Filtro de género */}
         <select onChange={(e) => setGenre(e.target.value)} style={{ padding: "10px", borderRadius: "5px" }}>
           <option value="">{language === "es" ? "Género" : "Genre"}</option>
           <option value="28">Acción</option>

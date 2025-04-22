@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TMDB_API_KEY } from './config'; // Ajusta el path si lo pusiste en otra carpeta
+import { TMDB_API_KEY } from './config';
 import {
   View,
   Text,

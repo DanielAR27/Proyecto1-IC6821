@@ -90,16 +90,20 @@ export default function App() {
             }
           }
   
-          if (filteredResults.length > 0) {
-            setMovies(filteredResults);
-            setTotalResults(filteredResults.length);
+          const ITEMS_PER_PAGE = 5;
+          const start = (currentPage - 1) * ITEMS_PER_PAGE;
+          const paginatedResults = filteredResults.slice(start, start + ITEMS_PER_PAGE);
+          
+          if (paginatedResults.length > 0) {
+            setMovies(paginatedResults);
+            setTotalResults(filteredResults.length); // total original para que el botón de "siguiente" funcione bien
           } else {
             setSearchError(language === 'es'
               ? 'No se encontraron resultados con esos filtros'
               : 'No results found with those filters');
             setMovies([]);
             setTotalResults(0);
-          }
+          }          
         } else {
           setSearchError(language === 'es'
             ? 'No se encontraron resultados'
@@ -117,7 +121,16 @@ export default function App() {
         setMoviesLoading(false);
       });
   };
-    
+
+  const resetFilters = () => {
+    setGenre('');
+    setYear('');
+    setRating('');
+    setSearchQuery('');
+    setCurrentPage(1);
+    fetchMovies();
+  };
+  
   // Función para obtener detalles de una película
   const fetchMovieDetails = (movieId) => {
     setMovieDetailLoading(true);
@@ -265,6 +278,7 @@ if (selectedMovie) {
       />
       <View style={styles.content}>
         <SearchBar
+          resetFilters={resetFilters}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           handleSearch={handleSearch}
@@ -304,7 +318,7 @@ if (selectedMovie) {
               </Text>
             </TouchableOpacity>
           )}
-          {currentPage * 10 < totalResults && (
+          {currentPage * 5 < totalResults && (
             <TouchableOpacity
               style={styles.paginationButton}
               onPress={() => setCurrentPage(currentPage + 1)}
